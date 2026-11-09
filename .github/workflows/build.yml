@@ -41,6 +41,18 @@ jobs:
       - name: Install project dependencies
         run: npm install
 
+      - name: Install Capacitor Android
+        run: npm install @capacitor/android
+
+      - name: Install Capacitor CLI
+        run: npm install -D @capacitor/cli
+
+      - name: Add Android platform
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+
       - name: Sync Capacitor Android project
         run: npx cap sync android
 
@@ -65,7 +77,7 @@ jobs:
           elif new in s:
               print("Start.io receiver already fixed.")
           else:
-              raise SystemExit("Start.io receiver line not found; build stopped.")
+              raise SystemExit("Start.io receiver line not found.")
           PYTHON
 
       - name: Build debug APK
