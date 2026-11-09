@@ -1,77 +1,83 @@
 name: Project100 Android APK
- 
+
 on:
-workflow_dispatch:
-push:
-branches: &#91;main&#93;
- 
+  workflow_dispatch:
+  push:
+    branches: [main]
+
 permissions:
-contents: read
- 
+  contents: read
+
 jobs:
-build:
-runs-on: ubuntu-latest
-steps:
-- name: Checkout project
-uses: actions/checkout@v4
- 
-```
-  - name: Set up Node.js  
-    uses: actions/setup-node@v4  
-    with:  
-      node-version: 22  
+  build:
+    runs-on: ubuntu-latest
 
-  - name: Set up Java  
-    uses: actions/setup-java@v4  
-    with:  
-      distribution: temurin  
-      java-version: '21'  
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
 
-  - name: Set up Android SDK  
-    uses: android-actions/setup-android@v3  
-    with:  
-      packages: 'platform-tools platforms;android-36 build-tools;36.0.0'  
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-  - name: Accept Android SDK licenses  
-    run: yes | sdkmanager --licenses || true  
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
-  - name: Install Android SDK packages  
-    run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"  
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
 
-  - name: Install project dependencies  
-    run: npm ci  
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
 
-  - name: Sync Capacitor Android project  
-    run: npx cap sync android  
+      - name: Install Android SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-  - name: Fix legacy Start.io receiver manifest  
-    run: |  
-      python3 - <<'PYTHON'  
-      from pathlib import Path  
-      p = Path("android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml")  
-      s = p.read_text()  
-      old = '<receiver android:name="com.startapp.android.publish.common.metaData.BootCompleteListener">'  
-      new = '<receiver android:name="com.startapp.android.publish.common.metaData.BootCompleteListener" android:exported="true">'  
-      if old in s:  
-          p.write_text(s.replace(old, new, 1))  
-          print("Start.io receiver fixed.")  
-      elif new in s:  
-          print("Start.io receiver already fixed.")  
-      else:  
-          raise SystemExit("Start.io receiver line not found; build stopped.")  
-      PYTHON  
+      - name: Install project dependencies
+        run: npm ci
 
-  - name: Build debug APK  
-    run: |  
-      chmod +x android/gradlew  
-      cd android  
-      ./gradlew assembleDebug --stacktrace  
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
 
-  - name: Save APK as downloadable artifact  
-    uses: actions/upload-artifact@v4  
-    with:  
-      name: Project100-debug-APK  
-      path: android/app/build/outputs/apk/debug/app-debug.apk  
-      if-no-files-found: error  
-      retention-days: 14
-```
+      - name: Fix legacy Start.io receiver manifest
+        run: |
+          python3 - <<'PYTHON'
+          from pathlib import Path
+
+          p = Path("android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml")
+
+          if not p.exists():
+              raise SystemExit("AndroidManifest.xml not found.")
+
+          s = p.read_text()
+
+          old = '<receiver android:name="com.startapp.android.publish.common.metaData.BootCompleteListener">'
+          new = '<receiver android:name="com.startapp.android.publish.common.metaData.BootCompleteListener" android:exported="true">'
+
+          if old in s:
+              p.write_text(s.replace(old, new, 1))
+              print("Start.io receiver fixed.")
+          elif new in s:
+              print("Start.io receiver already fixed.")
+          else:
+              raise SystemExit("Start.io receiver line not found; build stopped.")
+          PYTHON
+
+      - name: Build debug APK
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Save APK as downloadable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Project100-debug-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
