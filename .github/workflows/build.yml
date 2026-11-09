@@ -1,4 +1,4 @@
-name: Project100 Android APK
+oname: Project100 Android APK
 
 on:
   workflow_dispatch:
@@ -75,10 +75,10 @@ jobs:
               p.write_text(s.replace(old, new, 1))
               print("Start.io receiver fixed.")
           elif new in s:
-              print("Start.io receiver already fixed.")
-          else:
-              raise SystemExit("Start.io receiver line not found.")
-          PYTHON
+              
+          
+              
+          
 
       - name: Build debug APK
         run: |
