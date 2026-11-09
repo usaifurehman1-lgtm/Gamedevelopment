@@ -1,0 +1,16 @@
+{
+  "name": "project100",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Project100 Android Game",
+  "scripts": {
+    "build": "echo Build completed"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/android": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}
